@@ -5,6 +5,12 @@
                       http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
                       name="hexagonal-archetype">
 
+    <requiredProperties>
+        <requiredProperty key="package">
+            <defaultValue>${groupId}.${artifactId.replaceAll("-", "").toLowerCase()}</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
+
     <fileSets>
         <fileSet filtered="true" packaged="true">
             <directory>src/main/java</directory>
