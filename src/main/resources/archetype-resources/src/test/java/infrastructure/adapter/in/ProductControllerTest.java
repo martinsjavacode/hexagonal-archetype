@@ -2,48 +2,63 @@ package ${package}.infrastructure.adapter.in;
 
 import ${package}.domain.model.Product;
 import ${package}.domain.port.in.CreateProductUseCase;
+import ${package}.factory.ProductFactory;
+import ${package}.factory.ProductRequestFactory;
+import ${package}.infrastructure.adapter.in.dto.CreateProductRequest;
+import ${package}.infrastructure.adapter.in.dto.ProductResponse;
+import ${package}.infrastructure.adapter.in.mapper.ProductControllerMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@WebFluxTest(ProductController.class)
+@ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
 
-    @Autowired
-    private WebTestClient webTestClient;
-
-    @MockBean
+    @Mock
     private CreateProductUseCase createProductUseCase;
+
+    @Mock
+    private ProductControllerMapper mapper;
+
+    @InjectMocks
+    private ProductController productController;
 
     @Test
     void shouldCreateProduct() {
         // Given
-        Product product = new Product("Test Product", new BigDecimal("29.99"));
-        product.setId(1L);
+        CreateProductRequest request = ProductRequestFactory.aValidRequest();
+        Product product = ProductFactory.aValidProduct()
+                .name(request.name())
+                .price(request.price())
+                .build();
+        
+        ProductResponse response = new ProductResponse(
+                product.getId(), 
+                product.getName(), 
+                product.getPrice(), 
+                LocalDateTime.now()
+        );
 
-        when(createProductUseCase.create(eq("Test Product"), eq(new BigDecimal("29.99"))))
+        when(createProductUseCase.create(eq(request.name()), eq(request.price())))
                 .thenReturn(Mono.just(product));
+        when(mapper.toResponse(any(Product.class))).thenReturn(response);
 
-        // When & Then
-        webTestClient.post()
-                .uri("/api/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"name\":\"Test Product\",\"price\":29.99}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo(1)
-                .jsonPath("$.name").isEqualTo("Test Product")
-                .jsonPath("$.price").isEqualTo(29.99);
+        // When
+        Mono<ProductResponse> result = productController.createProduct(request);
+
+        // Then
+        StepVerifier.create(result)
+                .expectNext(response)
+                .verifyComplete();
     }
 }

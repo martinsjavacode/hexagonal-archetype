@@ -3,6 +3,7 @@ package ${package}.application.usecase;
 import ${package}.domain.model.Product;
 import ${package}.domain.port.out.ProductRepository;
 import ${package}.domain.service.ProductDomainService;
+import ${package}.factory.ProductFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +38,9 @@ class CreateProductUseCaseImplTest {
         // Given
         String name = "Test Product";
         BigDecimal price = new BigDecimal("29.99");
-        Product savedProduct = new Product(name, price);
-        savedProduct.setId(1L);
+        Product savedProduct = ProductFactory.aProductWithName(name)
+                .price(price)
+                .build();
 
         doNothing().when(productDomainService).validateProduct(any(Product.class));
         when(productRepository.save(any(Product.class))).thenReturn(Mono.just(savedProduct));
