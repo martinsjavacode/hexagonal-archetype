@@ -13,6 +13,7 @@ Maven archetype para projetos com arquitetura hexagonal usando Spring Boot 3.5, 
 - **Lombok** - Redução de boilerplate
 - **MapStruct** - Mapeamento entre objetos
 - **JaCoCo** - Coverage de código (80% mínimo)
+- **OpenTelemetry** - Observabilidade (traces, metrics, logs)
 - **Java 21** - Versão LTS mais recente
 
 ## Instalação do Archetype
@@ -168,3 +169,46 @@ curl http://localhost:8080/actuator/health
 3. Configurar banco de dados real
 4. Adicionar testes automatizados
 5. Configurar CI/CD
+
+## Observabilidade com OpenTelemetry
+
+### Stack de Observabilidade
+- **OpenTelemetry** - Traces, métricas e logs
+- **Jaeger** - Distributed tracing
+- **Prometheus** - Coleta de métricas
+- **Grafana** - Visualização e dashboards
+
+### Executar Stack de Observabilidade
+
+```bash
+# Subir stack completa
+docker-compose up -d
+
+# Verificar serviços
+docker-compose ps
+```
+
+### Acessar Interfaces
+
+- **Aplicação**: http://localhost:8080
+- **Jaeger UI**: http://localhost:16686
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin)
+
+### Métricas Disponíveis
+
+- **Traces**: Rastreamento de requests end-to-end
+- **Métricas**: Performance, latência, throughput
+- **Logs**: Logs estruturados com trace correlation
+
+### Exemplo de Uso
+
+```bash
+# Criar produto (gera traces)
+curl -X POST http://localhost:8080/api/products \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Produto Observado", "price": 99.99}'
+
+# Ver traces no Jaeger: http://localhost:16686
+# Ver métricas no Grafana: http://localhost:3000
+```

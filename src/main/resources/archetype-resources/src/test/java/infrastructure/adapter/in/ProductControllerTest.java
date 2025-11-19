@@ -7,9 +7,10 @@ import ${package}.factory.ProductRequestFactory;
 import ${package}.infrastructure.adapter.in.dto.CreateProductRequest;
 import ${package}.infrastructure.adapter.in.dto.ProductResponse;
 import ${package}.infrastructure.adapter.in.mapper.ProductControllerMapper;
+import io.micrometer.observation.ObservationRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -30,8 +31,13 @@ class ProductControllerTest {
     @Mock
     private ProductControllerMapper mapper;
 
-    @InjectMocks
     private ProductController productController;
+
+    @BeforeEach
+    void setUp() {
+        ObservationRegistry observationRegistry = ObservationRegistry.create();
+        productController = new ProductController(createProductUseCase, mapper, observationRegistry);
+    }
 
     @Test
     void shouldCreateProduct() {

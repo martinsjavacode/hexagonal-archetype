@@ -4,6 +4,7 @@ import ${package}.domain.model.Product;
 import ${package}.domain.port.out.ProductRepository;
 import ${package}.domain.service.ProductDomainService;
 import ${package}.factory.ProductFactory;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,8 @@ class CreateProductUseCaseImplTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new CreateProductUseCaseImpl(productRepository, productDomainService);
+        ObservationRegistry observationRegistry = ObservationRegistry.create();
+        useCase = new CreateProductUseCaseImpl(productRepository, productDomainService, observationRegistry);
     }
 
     @Test

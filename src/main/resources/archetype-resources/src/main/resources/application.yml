@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: ${artifactId}
   r2dbc:
     url: r2dbc:h2:mem:///testdb
     username: sa
@@ -16,12 +18,46 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+# OpenTelemetry Configuration
+otel:
+  service:
+    name: ${artifactId}
+    version: ${version}
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+      protocol: grpc
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: otlp
+  logs:
+    exporter: otlp
+  instrumentation:
+    spring-webflux:
+      enabled: true
+    r2dbc:
+      enabled: true
+    micrometer:
+      enabled: true
 
 logging:
   level:
     ${package}: DEBUG
     org.springframework.r2dbc: DEBUG
+    io.opentelemetry: INFO

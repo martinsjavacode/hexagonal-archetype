@@ -6,9 +6,10 @@ import ${package}.factory.ProductFactory;
 import ${package}.infrastructure.adapter.out.mapper.ProductPersistenceMapper;
 import ${package}.infrastructure.persistence.ProductEntity;
 import ${package}.infrastructure.persistence.ProductR2dbcRepository;
+import io.micrometer.observation.ObservationRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
@@ -27,8 +28,13 @@ class ProductRepositoryImplTest {
     @Mock
     private ProductPersistenceMapper mapper;
 
-    @InjectMocks
     private ProductRepositoryImpl productRepository;
+
+    @BeforeEach
+    void setUp() {
+        ObservationRegistry observationRegistry = ObservationRegistry.create();
+        productRepository = new ProductRepositoryImpl(r2dbcRepository, mapper, observationRegistry);
+    }
 
     @Test
     void shouldSaveProduct() {
