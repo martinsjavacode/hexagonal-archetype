@@ -174,9 +174,27 @@ curl http://localhost:8080/actuator/health
 
 ### Stack de Observabilidade
 - **OpenTelemetry** - Traces, métricas e logs
-- **Dynatrace** - APM e observabilidade completa
-- **Prometheus** - Coleta de métricas (opcional)
-- **Grafana** - Visualização e dashboards (opcional)
+- **Dynatrace** - APM completo (substitui Jaeger, Prometheus e Grafana)
+- **Instrumentação Manual** - Sem AspectJ, controle total sobre métricas
+
+### Abordagem de Instrumentação
+
+O archetype usa **instrumentação manual** ao invés de AspectJ para máximo controle e performance:
+
+```java
+// Exemplo de instrumentação manual
+return Observation.createNotStarted("product.create", observationRegistry)
+    .observe(() -> {
+        // Sua lógica de negócio aqui
+        return productRepository.save(product);
+    });
+```
+
+**Vantagens:**
+- Sem dependências do AspectJ
+- Controle total sobre onde instrumentar
+- Performance superior (sem proxies)
+- Facilita debugging e manutenção
 
 ### Configuração do Dynatrace
 
@@ -233,37 +251,20 @@ DYNATRACE_URI=https://{domain}/e/{environment-id}/api/v2/metrics/ingest
 DYNATRACE_OTLP_ENDPOINT=https://{domain}/e/{environment-id}/api/v2/otlp/v1/traces
 ```
 
-### Executar Stack de Observabilidade
-
-```bash
-# Subir stack completa
-docker-compose up -d
-
-# Verificar serviços
-docker-compose ps
-```
-
-### Acessar Interfaces
-
-- **Aplicação**: http://localhost:8080
-- **Jaeger UI**: http://localhost:16686
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
-
 ### Métricas Disponíveis
 
-- **Traces**: Rastreamento de requests end-to-end
-- **Métricas**: Performance, latência, throughput
-- **Logs**: Logs estruturados com trace correlation
+- **product.create** - Criação de produtos (UseCase)
+- **product.controller.create** - Endpoint REST
+- **product.repository.save/findById/findAll** - Operações de persistência
 
 ### Exemplo de Uso
 
 ```bash
-# Criar produto (gera traces)
+# Criar produto (gera traces e métricas)
 curl -X POST http://localhost:8080/api/products \
   -H "Content-Type: application/json" \
   -d '{"name": "Produto Observado", "price": 99.99}'
 
-# Ver traces no Jaeger: http://localhost:16686
-# Ver métricas no Grafana: http://localhost:3000
+# Ver dados no Dynatrace: acesse seu ambiente configurado
+# Traces, métricas e logs estarão disponíveis automaticamente
 ```

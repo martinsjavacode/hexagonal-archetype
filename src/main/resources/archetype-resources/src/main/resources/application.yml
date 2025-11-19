@@ -18,7 +18,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
   endpoint:
     health:
       show-details: always
@@ -32,8 +32,6 @@ management:
         api-token: '${DYNATRACE_API_TOKEN}'
         uri: '${DYNATRACE_URI}'
         device-id: ${artifactId}
-      prometheus:
-        enabled: true
     distribution:
       percentiles-histogram:
         http.server.requests: true
