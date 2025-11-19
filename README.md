@@ -170,13 +170,68 @@ curl http://localhost:8080/actuator/health
 4. Adicionar testes automatizados
 5. Configurar CI/CD
 
-## Observabilidade com OpenTelemetry
+## Observabilidade com OpenTelemetry e Dynatrace
 
 ### Stack de Observabilidade
 - **OpenTelemetry** - Traces, métricas e logs
-- **Jaeger** - Distributed tracing
-- **Prometheus** - Coleta de métricas
-- **Grafana** - Visualização e dashboards
+- **Dynatrace** - APM e observabilidade completa
+- **Prometheus** - Coleta de métricas (opcional)
+- **Grafana** - Visualização e dashboards (opcional)
+
+### Configuração do Dynatrace
+
+#### 1. Configurar Variáveis de Ambiente
+
+Copie o arquivo `.env.example` para `.env` e configure:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` com suas credenciais do Dynatrace:
+
+```bash
+# Dynatrace Configuration
+DYNATRACE_API_TOKEN=dt0c01.ST2EY72KQINMH613...
+DYNATRACE_URI=https://abc12345.live.dynatrace.com/api/v2/metrics/ingest
+DYNATRACE_OTLP_ENDPOINT=https://abc12345.live.dynatrace.com/api/v2/otlp/v1/traces
+DYNATRACE_ENVIRONMENT=production
+DYNATRACE_SERVICE_VERSION=1.0.0
+```
+
+#### 2. Executar com Perfil Dynatrace
+
+```bash
+# Executar aplicação com Dynatrace
+mvn spring-boot:run -Dspring-boot.run.profiles=dynatrace
+
+# Ou definir via variável de ambiente
+export SPRING_PROFILES_ACTIVE=dynatrace
+mvn spring-boot:run
+```
+
+#### 3. Gerar API Token no Dynatrace
+
+1. Acesse seu ambiente Dynatrace
+2. Vá em **Settings > Integration > Dynatrace API**
+3. Gere um token com as permissões:
+   - `metrics.ingest` (Ingest metrics)
+   - `openTelemetryTrace.ingest` (Ingest OpenTelemetry traces)
+   - `logs.ingest` (Ingest logs)
+
+#### 4. Configurar Endpoints
+
+**Para SaaS:**
+```
+DYNATRACE_URI=https://{environment-id}.live.dynatrace.com/api/v2/metrics/ingest
+DYNATRACE_OTLP_ENDPOINT=https://{environment-id}.live.dynatrace.com/api/v2/otlp/v1/traces
+```
+
+**Para Managed:**
+```
+DYNATRACE_URI=https://{domain}/e/{environment-id}/api/v2/metrics/ingest
+DYNATRACE_OTLP_ENDPOINT=https://{domain}/e/{environment-id}/api/v2/otlp/v1/traces
+```
 
 ### Executar Stack de Observabilidade
 

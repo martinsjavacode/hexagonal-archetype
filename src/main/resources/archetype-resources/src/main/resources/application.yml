@@ -27,20 +27,27 @@ management:
       probability: 1.0
   metrics:
     export:
+      dynatrace:
+        enabled: true
+        api-token: '${DYNATRACE_API_TOKEN}'
+        uri: '${DYNATRACE_URI}'
+        device-id: ${artifactId}
       prometheus:
         enabled: true
     distribution:
       percentiles-histogram:
         http.server.requests: true
 
-# OpenTelemetry Configuration
+# OpenTelemetry Configuration for Dynatrace
 otel:
   service:
     name: ${artifactId}
     version: ${version}
   exporter:
     otlp:
-      endpoint: http://localhost:4317
+      endpoint: '${DYNATRACE_OTLP_ENDPOINT}'
+      headers:
+        Authorization: 'Api-Token ${DYNATRACE_API_TOKEN}'
       protocol: grpc
   traces:
     exporter: otlp

@@ -1,0 +1,38 @@
+management:
+  metrics:
+    export:
+      dynatrace:
+        enabled: true
+        api-token: \${DYNATRACE_API_TOKEN}
+        uri: \${DYNATRACE_URI}
+        device-id: \${spring.application.name}
+        step: PT1M
+        connect-timeout: PT10S
+        read-timeout: PT10S
+        batch-size: 10000
+        v2:
+          metric-key-prefix: "custom."
+          enrich-with-dynatrace-metadata: true
+          default-dimensions:
+            service: \${spring.application.name}
+            version: \${DYNATRACE_SERVICE_VERSION}
+            environment: \${DYNATRACE_ENVIRONMENT}
+
+otel:
+  exporter:
+    otlp:
+      endpoint: \${DYNATRACE_OTLP_ENDPOINT}
+      headers:
+        Authorization: "Api-Token \${DYNATRACE_API_TOKEN}"
+      protocol: grpc
+  resource:
+    attributes:
+      service.name: \${spring.application.name}
+      service.version: \${DYNATRACE_SERVICE_VERSION}
+      deployment.environment: \${DYNATRACE_ENVIRONMENT}
+      dt.security_context: \${DYNATRACE_SECURITY_CONTEXT}
+
+logging:
+  level:
+    io.micrometer.dynatrace: DEBUG
+    io.opentelemetry.exporter.otlp: DEBUG
